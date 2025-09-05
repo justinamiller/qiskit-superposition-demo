@@ -1,57 +1,97 @@
-Quantum Superposition with Qiskit
-This project contains a simple Python script (quantum_superposition.py) that demonstrates the quantum mechanical principle of superposition using IBM's Qiskit framework. It creates a quantum circuit with two qubits, places them both into a state of superposition, and then simulates the measurement outcomes to show their probabilistic nature.
+# quantum-similarity
 
-What is Quantum Computing?
-Classical computers, like the one you're using now, store and process information using bits, which can be in one of two states: 0 or 1. Quantum computers, on the other hand, use qubits. A qubit is a fundamental unit of quantum information that can exist in a state of 0, 1, or a combination of both at the same time. This ability to be in multiple states simultaneously is a key concept that gives quantum computers their immense potential.
+**Quantum superposition for evaluating two elements** — this project demonstrates how **quantum superposition** can be applied to compare two classical objects (numeric vectors or raw text). It uses the **SWAP test** to measure similarity between the quantum states that represent each element.
 
-Key Concept: Superposition
-Superposition is one of the most fundamental principles of quantum mechanics. It states that, much like waves in physics can be added together, a quantum system can be in multiple states at once until it is measured.
+---
 
-Think of a spinning coin. While it's in the air, it's neither heads nor tails—it's in a dynamic state that encompasses both possibilities. Only when it lands (the "measurement") does it collapse into a definite state of either heads or tails. A qubit in superposition is similar; it exists in a combination of the |0⟩ and |1⟩ states. When we measure it, its superposition collapses, and it will be observed as either a 0 or a 1, with a certain probability for each outcome.
+## What is Superposition?
 
-In this script, we use a Hadamard Gate (H), which is a quantum logic gate that puts a qubit into an equal superposition. This means that after applying the H-gate, the qubit has a 50% chance of being measured as a 0 and a 50% chance of being measured as a 1.
+In classical computing, a bit is either **0** or **1**. In quantum computing, a **qubit** can be in a state that is a *superposition* of both 0 and 1 at the same time:
 
-What the Code Does
-The Python script quantum_superposition.py performs the following steps:
+```
+|ψ⟩ = α|0⟩ + β|1⟩
+```
 
-Initialization: It creates a quantum circuit with two qubits and two classical bits. The qubits are automatically initialized to the state |0⟩.
+where `α` and `β` are complex numbers representing probabilities.  
+Superposition allows quantum computers to evaluate multiple possibilities *in parallel* within a single computation.
 
-Apply Superposition: A Hadamard (H) gate is applied to each of the two qubits. This puts both of them into an equal superposition of |0⟩ and |1⟩.
+---
 
-Measurement: The state of each qubit is measured. This act of measurement collapses the superposition, forcing each qubit into a definite state of either 0 or 1. The result of each measurement is stored in the corresponding classical bit.
+## How this code uses Superposition
 
-Simulation: The quantum circuit is run on a local simulator 1024 times (called "shots"). Because the outcome of a quantum measurement is probabilistic, we run it many times to see the statistical distribution of the results.
+1. **Ancilla qubit**: We create an extra "control" qubit and put it into superposition using a Hadamard gate.
+2. **Two registers**: We encode two classical elements (vectors or text features) into separate quantum registers.
+3. **SWAP test**: The ancilla qubit, in superposition, controls whether we swap these two registers or not.
+4. **Interference**: Measuring the ancilla after interference reveals the similarity between the two states.
 
-Visualization: The script prints a text-based diagram of the circuit, the final counts for each state, and then uses matplotlib to plot a histogram showing the frequency of each possible outcome.
+The outcome probability directly encodes **how similar the two elements are**:
+- If the elements are identical, the ancilla almost always measures `0`.
+- If they are completely different, the ancilla measures `0` only about half the time.
 
-Prerequisites
-Python 3.x
+---
 
-pip (Python package installer)
+## Real-World Examples of Superposition
 
-Installation
-Clone this repository or download the quantum_superposition.py file.
+- **Document Deduplication**  
+  Detect whether two documents are nearly the same (e.g., detecting duplicate support tickets).
 
-Open your terminal or command prompt.
+- **Genomics**  
+  Compare DNA sequences represented as vectors. Superposition lets the circuit test similarity in one coherent operation.
 
-Install the required Python libraries:
+- **Recommender Systems**  
+  Compare user preference vectors with product feature vectors to quickly evaluate closeness.
 
-pip install qiskit qiskit-aer matplotlib
+- **Anomaly Detection**  
+  Compare an incoming data vector against a baseline "normal" vector to see if it deviates significantly.
 
-How to Run the Script
-Navigate to the directory containing the file and run the following command in your terminal:
+These use cases illustrate how **evaluating multiple possibilities simultaneously** (enabled by superposition) can accelerate or simplify certain tasks.
 
-python quantum_superposition.py
+---
 
-Expected Output
-When you run the script, you will see:
+## Installation
 
-A text-based diagram of the quantum circuit.
+```bash
+pip install -e .
+```
 
-The results of the simulation, showing the counts for each of the four possible states ('00', '01', '10', '11').
+---
 
-A pop-up window displaying a histogram.
+## CLI Usage
 
-Because both qubits are in an equal superposition, all four outcomes are equally likely. Therefore, the histogram should show four bars of roughly equal height, with each outcome appearing approximately 25% of the time (around 256 out of 1024 shots).
+### Compare vectors
 
-This result demonstrates that until measured, the two-qubit system existed in a superposition of all four possible classical states.
+```bash
+qsim vectors "[1,2,3,4]" "[1,2,3,5]"
+```
+
+### Compare text
+
+```bash
+qsim text --text1 "Kubernetes scaling with autoscaling" \
+          --text2 "Autoscaling strategies for Kubernetes workloads"
+```
+
+---
+
+## Output Example
+
+```json
+{
+  "mode": "vectors",
+  "n_qubits_per_register": 2,
+  "shots": 8192,
+  "p0": 0.92,
+  "fidelity": 0.84,
+  "overlap": 0.9165
+}
+```
+
+- **p0**: Probability of ancilla = 0  
+- **fidelity**: Squared similarity between states  
+- **overlap**: Similarity metric comparable to cosine similarity
+
+---
+
+## License
+
+MIT

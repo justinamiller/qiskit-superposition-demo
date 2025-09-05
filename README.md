@@ -89,9 +89,3 @@ qsim text --text1 "Kubernetes scaling with autoscaling" \
 - **p0**: Probability of ancilla = 0  
 - **fidelity**: Squared similarity between states  
 - **overlap**: Similarity metric comparable to cosine similarity
-
----
-
-## License
-
-MIT
